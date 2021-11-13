@@ -37,3 +37,21 @@ final whiteBtnStyle = GoogleFonts.montserrat(
   color: Colors.white,
   fontWeight: fontMedium,
 );
+
+final semiBoldStyle = GoogleFonts.montserrat(
+  fontSize: 16,
+  color: Colors.black,
+  fontWeight: fontRegular,
+);
+
+final greyTexStyle = GoogleFonts.montserrat(
+  fontSize: 14,
+  color: greyColor,
+  fontWeight: fontRegular,
+);
+
+final blackTexStyle = GoogleFonts.montserrat(
+  fontSize: 14,
+  color: blackColor,
+  fontWeight: fontRegular,
+);
