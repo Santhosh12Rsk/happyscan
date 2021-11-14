@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:happyscan/main.dart';
 import 'package:happyscan/pages/pages.dart';
+import 'package:happyscan/pages/test_scan.dart';
 import 'package:happyscan/styles/styles.dart';
 import 'package:happyscan/utils/utils.dart';
 import 'package:happyscan/widgets/custom_text_btn.dart';
@@ -106,7 +107,7 @@ class WelcomePage extends StatelessWidget {
       height: 50,
       child: CustomTextBtn(
         onPressed: () =>
-            navigatorKey.currentState!.pushNamed(HomePage.routeName),
+            navigatorKey.currentState!.pushNamed(TestScanner.routeName),
         txtName: getStartedText,
         btnTestStyle: whiteBtnStyle,
         txtAlign: Alignment.bottomCenter,
