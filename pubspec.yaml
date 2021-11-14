@@ -36,10 +36,15 @@ dependencies:
   cupertino_icons: ^1.0.2
   google_fonts: ^2.1.0
   font_awesome_flutter: ^9.2.0
-  permission_handler: ^8.2.6
   image_picker: ^0.8.4+4
   edge_detection: ^1.0.7
   advance_pdf_viewer: ^2.0.0
+  image_cropper: ^1.4.1
+  image_crop: ^0.4.0
+  pdf: ^3.6.2
+  path_provider: ^2.0.1
+  open_file: ^3.2.1
+
 
 dev_dependencies:
   flutter_test:
