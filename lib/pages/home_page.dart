@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:happyscan/main.dart';
+import 'package:happyscan/pages/scanner_page.dart';
 import 'package:happyscan/styles/colors.dart';
 import 'package:happyscan/styles/styles.dart';
 import 'package:happyscan/utils/utils.dart';
@@ -139,15 +141,16 @@ class _HomePageState extends State<HomePage> {
           ]),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: const [
+        children: [
           IconButton(
-            onPressed: null,
-            icon: Icon(
+            onPressed: () =>
+                navigatorKey.currentState!.pushNamed(ScannerPage.routeName),
+            icon: const Icon(
               Icons.camera_alt,
               color: whiteColor,
             ),
           ),
-          VerticalDivider(
+          const VerticalDivider(
             color: whiteColor,
             thickness: 1,
             width: 10,
@@ -155,8 +158,9 @@ class _HomePageState extends State<HomePage> {
             endIndent: 10,
           ),
           IconButton(
-            onPressed: null,
-            icon: Icon(
+            onPressed: () =>
+                navigatorKey.currentState!.pushNamed(ScannerPage.routeName),
+            icon: const Icon(
               Icons.photo,
               color: whiteColor,
             ),

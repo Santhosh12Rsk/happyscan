@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:happyscan/pages/pages.dart';
+import 'package:happyscan/pages/scanner_page.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,6 +25,7 @@ class MyApp extends StatelessWidget {
       routes: <String, WidgetBuilder>{
         WelcomePage.routeName: (BuildContext _) => const WelcomePage(),
         HomePage.routeName: (BuildContext _) => const HomePage(),
+        ScannerPage.routeName: (BuildContext _) => const ScannerPage(),
       },
       home: const WelcomePage(),
     );
