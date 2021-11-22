@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:happyscan/pages/pages.dart';
+import 'package:happyscan/utils/utils.dart';
 
-void main() {
+AuthService appAuth = AuthService();
+bool result = false;
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  result = await appAuth.checkAlreadyLogin();
   runApp(const MyApp());
 }
 
@@ -15,7 +19,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Happy Scan',
+      title: 'HappyScan',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -25,7 +29,21 @@ class MyApp extends StatelessWidget {
         WelcomePage.routeName: (BuildContext _) => const WelcomePage(),
         HomePage.routeName: (BuildContext _) => const HomePage(),
       },
-      home: const WelcomePage(),
+      onGenerateRoute: (settings) {
+        if (result) {
+          return MaterialPageRoute(
+            builder: (context) {
+              return const HomePage();
+            },
+          );
+        } else {
+          return MaterialPageRoute(
+            builder: (context) {
+              return const WelcomePage();
+            },
+          );
+        }
+      },
     );
   }
 }

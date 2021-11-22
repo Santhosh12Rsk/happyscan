@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:happyscan/main.dart';
 import 'package:happyscan/pages/pages.dart';
-import 'package:happyscan/pages/test_scan.dart';
 import 'package:happyscan/styles/styles.dart';
 import 'package:happyscan/utils/utils.dart';
 import 'package:happyscan/widgets/custom_text_btn.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class WelcomePage extends StatelessWidget {
   static const String routeName = '/welcome';
@@ -106,10 +106,13 @@ class WelcomePage extends StatelessWidget {
     return SizedBox(
       height: 50,
       child: CustomTextBtn(
-        onPressed: () =>
-            navigatorKey.currentState!.pushNamed(TestScanner.routeName),
+        onPressed: () async {
+          SharedPreferences pref = await SharedPreferences.getInstance();
+          pref.setBool('isUserLoggedIn', true);
+          navigatorKey.currentState!.pushNamed(HomePage.routeName);
+        },
         txtName: getStartedText,
-        btnTestStyle: whiteBtnStyle,
+        btnTestStyle: whiteLargeStyle,
         txtAlign: Alignment.bottomCenter,
         margin: const EdgeInsets.only(bottom: 10),
       ),

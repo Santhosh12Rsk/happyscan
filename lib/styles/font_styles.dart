@@ -32,10 +32,28 @@ final lightWhiteTextStyle = GoogleFonts.montserrat(
   fontWeight: fontLight,
 );
 
+final smallTextStyle1 = GoogleFonts.montserrat(
+  fontSize: 12,
+  color: Colors.grey,
+  fontWeight: fontRegular,
+);
+
 final whiteBtnStyle = GoogleFonts.montserrat(
   fontSize: 15,
   color: Colors.white,
   fontWeight: fontMedium,
+);
+
+final accentBtnStyle = GoogleFonts.montserrat(
+  fontSize: 15,
+  color: accentColor,
+  fontWeight: fontMedium,
+);
+
+final whiteLargeStyle = GoogleFonts.montserrat(
+  fontSize: 20,
+  color: Colors.white,
+  fontWeight: fontRegular,
 );
 
 final semiBoldStyle = GoogleFonts.montserrat(
@@ -43,6 +61,13 @@ final semiBoldStyle = GoogleFonts.montserrat(
   color: Colors.black,
   fontWeight: fontRegular,
 );
+
+final subHeaderTextStyleBlack = GoogleFonts.montserrat(
+    fontSize: 20,
+    color: Colors.black,
+    fontWeight: FontWeight.bold,
+    decoration: TextDecoration.none,
+    fontStyle: FontStyle.normal);
 
 final greyTexStyle = GoogleFonts.montserrat(
   fontSize: 14,
@@ -52,6 +77,23 @@ final greyTexStyle = GoogleFonts.montserrat(
 
 final blackTexStyle = GoogleFonts.montserrat(
   fontSize: 14,
+  color: blackColor,
+  fontWeight: fontRegular,
+);
+final smallGreyTexStyle = GoogleFonts.montserrat(
+  fontSize: 12,
+  color: greyColor,
+  fontWeight: fontRegular,
+);
+
+final blackTitleTexStyle = GoogleFonts.montserrat(
+  fontSize: 18,
+  color: blackColor,
+  fontWeight: fontMedium,
+);
+
+final appBarTitleBlack = GoogleFonts.montserrat(
+  fontSize: 17,
   color: blackColor,
   fontWeight: fontRegular,
 );

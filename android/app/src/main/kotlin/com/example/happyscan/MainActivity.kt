@@ -1,4 +1,4 @@
-package com.example.happyscan
+package com.apptomate.happyscan
 
 import io.flutter.embedding.android.FlutterActivity
 
