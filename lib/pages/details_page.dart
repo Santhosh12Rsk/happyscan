@@ -293,7 +293,7 @@ class _DetailsPageState extends State<DetailsPage> {
                                     args.image!.readAsBytesSync());
                               }
                               DocumentDetails data = DocumentDetails(
-                                image: imgString,
+                                image: args.image!.readAsBytesSync(),
                                 createDate: date,
                                 docName: titleController.text,
                                 docType: isPdf == true ? 1 : 0,

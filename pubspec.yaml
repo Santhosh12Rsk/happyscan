@@ -33,17 +33,12 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  #cupertino_icons: ^1.0.2
   google_fonts: ^2.1.0
-  #font_awesome_flutter: ^9.2.0
   image_picker: ^0.8.4+4
   edge_detection: ^1.0.7
-  #advance_pdf_viewer: ^2.0.0
   image_cropper: ^1.4.1
-  #image_crop: ^0.4.0
   pdf: ^3.6.2
   path_provider: ^2.0.6
-  #open_file: ^3.2.1
   share_plus: ^3.0.4
   shared_preferences: ^2.0.8
   sqflite: ^2.0.0+4
@@ -52,6 +47,7 @@ dependencies:
   in_app_review: ^2.0.3
   permission_handler: ^8.3.0
   carousel_slider: ^4.0.0
+  advance_pdf_viewer: ^2.0.0
 
 
 dev_dependencies:

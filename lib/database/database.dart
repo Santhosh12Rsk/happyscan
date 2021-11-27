@@ -37,7 +37,7 @@ class DatabaseProvider {
         "docName TEXT, "
         "createDate TEXT, "
         "docType INTEGER, "
-        "image TEXT, "
+        "image BLOB, "
         /*SQLITE doesn't have boolean type
         so we store isDone as integer where 0 is false
         and 1 is true*/

@@ -75,20 +75,29 @@ class _SettingPageState extends State<SettingPage> {
       ),
       body: Column(
         children: [
+          const SizedBox(
+            height: 10,
+          ),
           SettingCardItem(
             title: aboutHappyScanText,
             icon: Icons.info_rounded,
-            onClicked: () {},
+            onClicked: () {
+              aboutHappyScanDialog();
+            },
           ),
           SettingCardItem(
             title: helpText,
             icon: Icons.help_sharp,
-            onClicked: () {},
+            onClicked: () {
+              helpDialog();
+            },
           ),
           SettingCardItem(
             title: rateAppText,
             icon: Icons.star_half_outlined,
-            onClicked: () => _requestReview(),
+            onClicked: () {
+              _requestReview();
+            },
           ),
           SettingCardItem(
             title: shareThisAppText,
@@ -104,7 +113,86 @@ class _SettingPageState extends State<SettingPage> {
     try {
       Share.share('check out my website https://example.com',
           subject: 'Look what I made!');
-    } catch (e) {}
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<void> aboutHappyScanDialog() async {
+    var alert = AlertDialog(
+      elevation: 6,
+      title: const Text(aboutHappyScanText),
+      contentPadding:
+          const EdgeInsets.only(left: 22, right: 22, top: 20, bottom: 5),
+      content: const Text(
+          'Happy scan is a mobile application that works both in iOS and android which is used for image scanning. It enables the users to convert the scanned images to PDF and JPEG which can be saved and shared across other applications. The app was originally designed and developed by Apptomate.'),
+      actions: <Widget>[
+        TextButton(
+            onPressed: () async {
+              // final sharedPref = await SharedPreferences.getInstance();
+              //sharedPref.clear();
+              navigatorKey.currentState!.pop();
+            },
+            child: const Text(
+              "Close",
+              style: TextStyle(color: Colors.blue),
+            ))
+      ],
+    );
+    showDialog(
+        barrierDismissible: false,
+        context: navigatorKey.currentContext!,
+        builder: (_) {
+          return alert;
+        }).then((val) {
+      return true;
+    });
+  }
+
+  Future<void> helpDialog() async {
+    var alert = AlertDialog(
+      elevation: 6,
+      title: const Text(helpText),
+      contentPadding:
+          const EdgeInsets.only(left: 22, right: 22, top: 20, bottom: 5),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: const [
+          Text('Please contact the below email for any queries or concerns.'),
+          SizedBox(
+            height: 3,
+          ),
+          Text(
+            'hello@apptomate.co',
+            style: TextStyle(
+              fontSize: 15,
+              color: accentColor,
+            ),
+          ),
+        ],
+      ),
+      actions: <Widget>[
+        TextButton(
+            onPressed: () async {
+              // final sharedPref = await SharedPreferences.getInstance();
+              //sharedPref.clear();
+              navigatorKey.currentState!.pop();
+            },
+            child: const Text(
+              "Close",
+              style: TextStyle(color: Colors.blue),
+            ))
+      ],
+    );
+    showDialog(
+        barrierDismissible: false,
+        context: navigatorKey.currentContext!,
+        builder: (_) {
+          return alert;
+        }).then((val) {
+      return true;
+    });
   }
 }
 

@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 class DocumentDetails {
   int? id;
   //description is the text we see on
@@ -8,7 +10,7 @@ class DocumentDetails {
 
   int? docType;
 
-  String? image;
+  Uint8List? image;
 
   //isDone used to mark what Todo item is completed
   bool isDone = false;

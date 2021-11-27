@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -29,8 +28,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   void initState() {
-    todoBloc.getTodos();
     super.initState();
+    todoBloc.getTodos();
   }
 
   @override
@@ -232,8 +231,6 @@ class _HomePageState extends State<HomePage> {
             Permission.camera,
             Permission.photos,
           ].request();
-          print("$statuses {statuses.toString()}");
-          print("statuses ${statuses[Permission.camera]}");
         }
         navigatorKey.currentState!.pushNamed(ScannerPage.routeName);
       },
@@ -242,6 +239,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  List<DocumentDetails> docList = <DocumentDetails>[];
   Widget getTodosWidget() {
     /*The StreamBuilder widget,
   basically this widget will take stream of data (todos)
@@ -254,20 +252,21 @@ class _HomePageState extends State<HomePage> {
         if (!snapshot.hasData) {
           return noDocFound();
         } else {
-          return showDocList(snapshot);
+          docList = snapshot.data!;
+          return showDocList();
         }
       },
     );
   }
 
-  Widget showDocList(AsyncSnapshot<List<DocumentDetails>> snapshot) {
-    return snapshot.data != null && snapshot.data!.isNotEmpty
+  Widget showDocList() {
+    return docList.isNotEmpty
         ? ListView.builder(
             shrinkWrap: true,
-            itemCount: snapshot.data!.length,
+            itemCount: docList.length,
             itemBuilder: (context, index) {
               return DocumentCardItem(
-                docData: snapshot.data![index],
+                docData: docList[index],
               );
             },
           )
@@ -325,18 +324,18 @@ class DocumentCardItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      elevation: 5,
       margin: const EdgeInsets.only(
-        left: 15,
-        right: 15,
-        top: 5,
-        bottom: 3,
+        left: 10,
+        right: 10,
+        top: 10,
       ),
       color: whiteColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(7),
       ),
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(10),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -350,9 +349,10 @@ class DocumentCardItem extends StatelessWidget {
                               color: Colors.black12,
                               height: 80,
                               width: double.infinity,
-                              child: ImageConverter.imageFromBase64String(
+                              child: Image.memory(
                                 docData.image!,
-                                80,
+                                fit: BoxFit.cover,
+                                height: 80,
                               ),
                             ),
                             Positioned(
@@ -405,16 +405,21 @@ class DocumentCardItem extends StatelessWidget {
               flex: 3,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(left: 10),
+                    padding: const EdgeInsets.only(
+                      left: 10,
+                    ),
                     child: Text(
                       docData.docName ?? '',
                       style: blackTexStyle,
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(left: 10),
+                    padding: const EdgeInsets.only(
+                      left: 10,
+                    ),
                     child: Text(
                       docData.createDate ?? '',
                       style: smallGreyTexStyle,
@@ -427,35 +432,51 @@ class DocumentCardItem extends StatelessWidget {
                         onPressed: () {
                           shareMyDoc(docData);
                         },
-                        iconSize: 25,
+                        iconSize: 20,
+                        padding: EdgeInsets.zero,
                         icon: const Icon(
                           Icons.share_sharp,
+                          size: 22,
                           color: greyColor,
                         ),
                       ),
                       IconButton(
                         onPressed: () {
-                          print('object ${docData.image}');
+                          navigatorKey.currentState!.pushNamed(
+                              ViewDocumentPage.routeName,
+                              arguments:
+                                  ViewDocumentPageArguments(data: docData));
+                        },
+                        iconSize: 20,
+                        icon: const Icon(
+                          Icons.remove_red_eye_rounded,
+                          color: greyColor,
+                          size: 22,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
                           navigatorKey.currentState!
                               .pushNamed(EditDocumentPage.routeName,
                                   arguments:
                                       EditDocumentPageArguments(data: docData))
                               .then((value) {
-                            print('on back ');
                             todoBloc.getTodos();
                           });
                         },
-                        iconSize: 25,
+                        iconSize: 20,
                         icon: const Icon(
                           Icons.edit,
+                          size: 22,
                           color: greyColor,
                         ),
                       ),
                       IconButton(
                         onPressed: () => CustomDialog.deleteAlert(docData.id!),
-                        iconSize: 25,
+                        iconSize: 20,
                         icon: const Icon(
                           Icons.delete,
+                          size: 22,
                           color: greyColor,
                         ),
                       ),
@@ -474,19 +495,21 @@ class DocumentCardItem extends StatelessWidget {
     try {
       //Share.share('check out my website https://example.com');
 
-      Uint8List bytes = base64.decode(docData.image!);
+      Uint8List bytes = docData.image!;
       String dir = (await getApplicationDocumentsDirectory()).path;
       String fullPath =
           '$dir/${docData.docName}.${docData.docType == 1 ? 'pdf' : 'png'}';
       File file = File(fullPath);
       await file.writeAsBytes(bytes);
       Share.shareFiles([fullPath], text: 'Happy Scan Document');
-    } catch (e) {}
+    } catch (e) {
+      return null;
+    }
   }
 }
 
 class PdfPreview extends StatefulWidget {
-  final String image64;
+  final Uint8List image64;
   final String? name;
   const PdfPreview({
     Key? key,
@@ -511,7 +534,7 @@ class _PdfPreviewState extends State<PdfPreview> {
   PdfPageImage? pdfImage;
   loadDocument() async {
     try {
-      Uint8List bytes = base64.decode(widget.image64);
+      Uint8List bytes = widget.image64;
 
       final document = await PdfDocument.openData(bytes);
       final page = await document.getPage(1);

@@ -36,6 +36,26 @@ class DocumentDao {
     return todos;
   }
 
+  Future<List<DocumentDetails>> getTodoById(
+      {List<String>? columns, String? query}) async {
+    final db = await dbProvider.database;
+
+    List<Map<String, dynamic>> result = [];
+    if (query != null) {
+      if (query.isNotEmpty) {
+        result = await db.query(documentTABLE,
+            columns: columns, where: 'id LIKE ?', whereArgs: ["%$query%"]);
+      }
+    } else {
+      result = await db.query(documentTABLE, columns: columns);
+    }
+
+    List<DocumentDetails> todos = result.isNotEmpty
+        ? result.map((item) => DocumentDetails.fromDatabaseJson(item)).toList()
+        : [];
+    return todos;
+  }
+
   Future<List<DocumentDetails>> getSearchTodos(
       {List<String>? columns, String? query}) async {
     final db = await dbProvider.database;

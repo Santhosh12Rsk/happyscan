@@ -17,4 +17,7 @@ class DocumentRepository {
 
   //We are not going to use this in the demo
   Future deleteAllTodos() => todoDao.deleteAllTodos();
+
+  Future<List<DocumentDetails>> getTodoById({String? query}) =>
+      todoDao.getTodoById(query: query);
 }

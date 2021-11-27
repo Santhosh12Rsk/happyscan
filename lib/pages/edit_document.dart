@@ -1,9 +1,11 @@
-import 'dart:convert';
 import 'dart:io' as Io;
 import 'dart:typed_data';
 
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:edge_detection/edge_detection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:happyscan/blocs/blocs.dart';
 import 'package:happyscan/main.dart';
 import 'package:happyscan/models/document_details.dart';
 import 'package:happyscan/pages/pages.dart';
@@ -18,6 +20,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart' as pdfPlugin;
 import 'package:pdf/widgets.dart' as pw;
 import 'package:share_plus/share_plus.dart';
+
+final DocumentBloc editTodoBloc = DocumentBloc();
 
 @immutable
 class EditDocumentPageArguments {
@@ -51,9 +55,6 @@ class _EditDocumentPageState extends State<EditDocumentPage> {
   void dispose() {
     // TODO: implement dispose
     super.dispose();
-    if (imageFile != null) {
-      imageFile = null;
-    }
   }
 
   @override
@@ -66,35 +67,46 @@ class _EditDocumentPageState extends State<EditDocumentPage> {
 
   List<Uint8List> pdfPageList = <Uint8List>[];
   Future _createFileFromString() async {
-    try {
-      Uint8List bytes = base64.decode(args.data.image!);
-      //String dir = (await getApplicationDocumentsDirectory()).path;
-      //String fullPath = '$dir/${args.data.docName}.png';
-      //Io.File file = Io.File(fullPath);
-      if (args.data.docType == 1) {
-        final document = await PdfDocument.openData(bytes);
-        int count = document.pagesCount;
-        print('edit document count $count');
-        for (int i = 0; i <= count; i++) {
-          final page = await document.getPage(i + 1);
-          final pdfImage =
-              await page.render(width: page.width, height: page.height);
+    print('_createFileFromString');
+    if (pdfPageList.isEmpty) {
+      try {
+        var data =
+            await editTodoBloc.getTodoById(query: args.data.id.toString());
+        setState(() {
+          pdfPageList.clear();
+        });
 
-          pdfPageList.add(pdfImage!.bytes);
+        if (data[0].docType == 1) {
+          print('_createFileFromString 1');
+          final document = await PdfDocument.openData(data[0].image!);
+          for (int i = 1; i <= document.pagesCount; i++) {
+            print('_createFileFromString i $i');
+            final page = await document.getPage(i);
+            final pdfImage =
+                await page.render(width: page.width, height: page.height);
+            if (pdfImage!.bytes.isNotEmpty) {
+              pdfPageList.add(pdfImage.bytes);
+            }
+            await page.close();
+            //await document.close();
+          }
           setState(() {
             pdfPageList = pdfPageList;
           });
-          print('edit document length ${pdfPageList.length}');
+        } else {
+          print('_createFileFromString else');
+          pdfPageList.add(data[0].image!);
+          setState(() {
+            pdfPageList = pdfPageList;
+          });
         }
-      } else {
-        //await file.writeAsBytes(bytes);
+      } catch (e) {
+        return null;
       }
-    } catch (e) {
-      print('edit document error $e');
-      return null;
     }
   }
 
+  int currentPos = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -118,28 +130,58 @@ class _EditDocumentPageState extends State<EditDocumentPage> {
           ? Container(
               margin: const EdgeInsets.only(
                   left: 20, right: 20, top: 20, bottom: 80),
-              child: CarouselSlider.builder(
-                options: CarouselOptions(
-                  height: MediaQuery.of(context).size.height,
-                  enlargeCenterPage: true,
-                  initialPage: 0,
-                  enableInfiniteScroll: false,
-                  disableCenter: true,
-                  autoPlay: false,
-                  autoPlayCurve: Curves.fastOutSlowIn,
-                ),
-                itemCount: pdfPageList.length,
-                itemBuilder:
-                    (BuildContext context, int itemIndex, int pageViewIndex) =>
-                        Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                  child: Image.memory(
-                    pdfPageList[itemIndex],
-                    fit: BoxFit.cover,
-                    height: MediaQuery.of(context).size.height,
-                    width: MediaQuery.of(context).size.width,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Flexible(
+                    child: CarouselSlider.builder(
+                      options: CarouselOptions(
+                        height: MediaQuery.of(context).size.height,
+                        enlargeCenterPage: true,
+                        initialPage: 0,
+                        enableInfiniteScroll: false,
+                        disableCenter: true,
+                        autoPlay: false,
+                        autoPlayCurve: Curves.fastOutSlowIn,
+                        onPageChanged: (index, reason) {
+                          setState(() {
+                            currentPos = index;
+                          });
+                        },
+                      ),
+                      itemCount: pdfPageList.length,
+                      itemBuilder: (BuildContext context, int itemIndex,
+                              int pageViewIndex) =>
+                          Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                        child: Image.memory(
+                          pdfPageList[itemIndex],
+                          fit: BoxFit.cover,
+                          height: MediaQuery.of(context).size.height - 100,
+                          width: MediaQuery.of(context).size.width,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: pdfPageList.map((url) {
+                      int index = pdfPageList.indexOf(url);
+                      return Container(
+                        width: 8.0,
+                        height: 8.0,
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 10.0, horizontal: 2.0),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: currentPos == index
+                              ? const Color.fromRGBO(0, 0, 0, 0.9)
+                              : const Color.fromRGBO(0, 0, 0, 0.4),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
               ),
             )
           : const Center(child: Text('Please wait its loading...')),
@@ -156,7 +198,8 @@ class _EditDocumentPageState extends State<EditDocumentPage> {
         children: [
           TextButton(
             onPressed: () {
-              selectImage();
+              showBottomSheet();
+              //selectImage();
             },
             child: Column(
               children: [
@@ -178,8 +221,21 @@ class _EditDocumentPageState extends State<EditDocumentPage> {
             width: 10,
           ),
           TextButton(
-            onPressed: () {
-              _cropImageNew(imageFile!);
+            onPressed: () async {
+              /*final document =
+                  await PdfDocument.openData(pdfPageList[currentPos]);
+              final page = await document.getPage(1);
+              final pdfImage =
+                  await page.render(width: page.width, height: page.height);*/
+              Io.Directory documentDirectory =
+                  await getApplicationDocumentsDirectory();
+
+              String documentPath = documentDirectory.path;
+
+              Io.File file = Io.File("$documentPath/${args.data.docName}.png");
+
+              file.writeAsBytesSync(pdfPageList[currentPos]);
+              _cropImageNew(file);
             },
             child: Column(
               children: [
@@ -192,6 +248,32 @@ class _EditDocumentPageState extends State<EditDocumentPage> {
                 ),
                 Text(
                   'Crop',
+                  style: smallTextStyle1,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(
+            width: 10,
+          ),
+          TextButton(
+            onPressed: () async {
+              var data = await editTodoBloc.getTodoById(
+                  query: args.data.id.toString());
+              navigatorKey.currentState!.pushNamed(ViewDocumentPage.routeName,
+                  arguments: ViewDocumentPageArguments(data: data[0]));
+            },
+            child: Column(
+              children: [
+                const Icon(
+                  Icons.remove_red_eye_rounded,
+                  color: Colors.black54,
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                Text(
+                  'View',
                   style: smallTextStyle1,
                 ),
               ],
@@ -248,62 +330,138 @@ class _EditDocumentPageState extends State<EditDocumentPage> {
     );
   }
 
-  void shareMyDoc(DocumentDetails docData) async {
-    try {
-      //Share.share('check out my website https://example.com');
-
-      Uint8List bytes = base64.decode(docData.image!);
-      String dir = (await getApplicationDocumentsDirectory()).path;
-      String fullPath =
-          '$dir/${docData.docName}.${docData.docType == 1 ? 'pdf' : 'png'}';
-      Io.File file = Io.File(fullPath);
-      await file.writeAsBytes(bytes);
-      Share.shareFiles([fullPath], text: 'Happy Scan Document');
-    } catch (e) {}
+  void showBottomSheet() {
+    showModalBottomSheet(
+        context: context,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(30),
+            topRight: Radius.circular(30),
+          ),
+        ),
+        backgroundColor: Colors.white,
+        builder: (context) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ListTile(
+                contentPadding: const EdgeInsets.only(left: 30, top: 10),
+                leading: const Icon(
+                  Icons.camera,
+                  color: accentColor,
+                ),
+                horizontalTitleGap: 5,
+                title: Text(
+                  'Camera',
+                  style: blackTexStyle,
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  getImage();
+                },
+              ),
+              ListTile(
+                contentPadding: const EdgeInsets.only(left: 30, bottom: 10),
+                leading: const Icon(
+                  Icons.photo_album,
+                  color: accentColor,
+                ),
+                horizontalTitleGap: 5,
+                title: Text(
+                  'Gallery',
+                  style: blackTexStyle,
+                ),
+                onTap: () {
+                  selectImage();
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          );
+        });
   }
 
-  final ImagePicker _picker = ImagePicker();
+  Future<void> getImage() async {
+    String? imagePath;
+    // Platform messages may fail, so we use a try/catch PlatformException.
+    // We also handle the message potentially returning null.
+    try {
+      imagePath = await EdgeDetection.detectEdge;
+    } on PlatformException catch (e) {
+      imagePath = e.toString();
+    }
+    if (!mounted) return;
+
+    if (imagePath != null) {
+      Io.File pickedFile = Io.File(imagePath);
+      final pickedBytes = pickedFile.readAsBytesSync();
+      pdfPageList.add(pickedBytes);
+      for (var img in pdfPageList) {
+        if (img.isNotEmpty) {
+          final image = pw.MemoryImage(img);
+
+          pdf.addPage(pw.Page(
+              pageFormat: pdfPlugin.PdfPageFormat.a4,
+              build: (pw.Context contex) {
+                return pw.Image(
+                  image,
+                  fit: pw.BoxFit.cover,
+                );
+              }));
+        }
+      }
+      setState(() {
+        pdfPageList = pdfPageList;
+      });
+
+      Io.Directory documentDirectory = await getApplicationDocumentsDirectory();
+
+      String documentPath = documentDirectory.path;
+
+      Io.File file = Io.File("$documentPath/${args.data.docName}.pdf");
+
+      file.writeAsBytesSync(await pdf.save());
+
+      final String date = formatter.format(now);
+      DocumentDetails data = DocumentDetails(
+        image: file.readAsBytesSync(),
+        createDate: date,
+        docName: args.data.docName,
+        docType: 1,
+        isDone: true,
+        id: args.data.id,
+      );
+      bloc.updateTodo(data);
+    }
+  }
 
   var pdf = pw.Document();
   void selectImage() async {
     try {
-      final XFile? pickedImage =
-          await _picker.pickImage(source: ImageSource.gallery);
+      final XFile? pickedImage = await _picker.pickImage(
+        source: ImageSource.gallery,
+      );
       if (pickedImage != null) {
         Io.File pickedFile = Io.File(pickedImage.path);
-        Uint8List bytes = base64.decode(args.data.image!);
+        final pickedBytes = pickedFile.readAsBytesSync();
+        pdfPageList.add(pickedBytes);
+        for (var img in pdfPageList) {
+          if (img.isNotEmpty) {
+            final image = pw.MemoryImage(img);
 
-        final document = await PdfDocument.openData(bytes);
-        int count = document.pagesCount;
-        for (int i = 0; i <= count; i++) {
-          final page = await document.getPage(i + 1);
-          final pdfImage =
-              await page.render(width: page.width, height: page.height);
-
-          final image1 = pw.MemoryImage(
-            pdfImage!.bytes,
-          );
-
-          pdf.addPage(pw.Page(
-              pageFormat: pdfPlugin.PdfPageFormat.a4,
-              build: (pw.Context context) {
-                return pw.Center(
-                  child: pw.Image(image1),
-                ); // Center
-              }));
+            pdf.addPage(pw.Page(
+                pageFormat: pdfPlugin.PdfPageFormat.a4,
+                build: (pw.Context contex) {
+                  return pw.Image(
+                    image,
+                    fit: pw.BoxFit.cover,
+                  );
+                }));
+          }
         }
-
-        final image1 = pw.MemoryImage(
-          pickedFile.readAsBytesSync(),
-        );
-
-        pdf.addPage(pw.Page(
-            pageFormat: pdfPlugin.PdfPageFormat.a4,
-            build: (pw.Context context) {
-              return pw.Center(
-                child: pw.Image(image1),
-              ); // Center
-            }));
+        setState(() {
+          pdfPageList = pdfPageList;
+        });
 
         Io.Directory documentDirectory =
             await getApplicationDocumentsDirectory();
@@ -314,91 +472,44 @@ class _EditDocumentPageState extends State<EditDocumentPage> {
 
         file.writeAsBytesSync(await pdf.save());
 
-        String imgString = ImageConverter.base64String(file.readAsBytesSync());
         final String date = formatter.format(now);
         DocumentDetails data = DocumentDetails(
-          image: imgString,
+          image: file.readAsBytesSync(),
           createDate: date,
           docName: args.data.docName,
-          docType: args.data.docType,
+          docType: 1,
           isDone: true,
           id: args.data.id,
         );
         bloc.updateTodo(data);
       }
     } catch (e) {
-      print('select image error $e');
+      return;
     }
   }
+
+  void shareMyDoc(DocumentDetails docData) async {
+    try {
+      //Share.share('check out my website https://example.com');
+
+      Uint8List bytes = docData.image!;
+      String dir = (await getApplicationDocumentsDirectory()).path;
+      String fullPath =
+          '$dir/${docData.docName}.${docData.docType == 1 ? 'pdf' : 'png'}';
+      Io.File file = Io.File(fullPath);
+      await file.writeAsBytes(bytes);
+      Share.shareFiles([fullPath], text: 'Happy Scan Document');
+    } catch (e) {
+      return null;
+    }
+  }
+
+  final ImagePicker _picker = ImagePicker();
 
   final DateTime now = DateTime.now();
   final DateFormat formatter = DateFormat('dd/MM/yyyy');
 
-  Widget fabBtns() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        FloatingActionButton(
-          backgroundColor: accentColor,
-          onPressed: () {
-            _cropImageNew(imageFile!);
-          },
-          child: const Icon(Icons.crop),
-        ),
-        const SizedBox(
-          width: 10,
-        ),
-        FloatingActionButton(
-          backgroundColor: accentColor,
-          onPressed: () {
-            //_cropImageNew(imageFile!);
-            showBottomDocListSheet();
-          },
-          child: const Icon(Icons.add),
-        )
-      ],
-    );
-  }
-
-  void showBottomDocListSheet() {
-    showModalBottomSheet(
-        context: context,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(30),
-            topRight: Radius.circular(30),
-          ),
-        ),
-        backgroundColor: Colors.white,
-        isScrollControlled: true,
-        builder: (context) {
-          return StatefulBuilder(builder: (BuildContext context,
-              StateSetter setState /*You can rename this!*/) {
-            return Container(
-              height: 150,
-              child: Padding(
-                padding: EdgeInsets.all(20),
-                //height: heightOfModalBottomSheet,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    Image.file(
-                      imageFile!,
-                      height: 100,
-                      width: 100,
-                      fit: BoxFit.fill,
-                    )
-                  ],
-                ),
-              ),
-            );
-          });
-        });
-  }
-
-  Io.File? imageFile;
-
-  Future<Null> _cropImageNew(Io.File imageFile) async {
+  Future<void> _cropImageNew(Io.File imageFile) async {
     try {
       Io.File? croppedFile = await ImageCropper.cropImage(
         sourcePath: imageFile.path,
@@ -435,17 +546,51 @@ class _EditDocumentPageState extends State<EditDocumentPage> {
         ),
       );
       if (croppedFile != null) {
-        print('_cropImageNew if');
+        final pickedBytes = croppedFile.readAsBytesSync();
+        pdfPageList[currentPos] = pickedBytes;
+        for (var img in pdfPageList) {
+          if (img.isNotEmpty) {
+            final image = pw.MemoryImage(img);
+
+            pdf.addPage(pw.Page(
+                pageFormat: pdfPlugin.PdfPageFormat.a4,
+                build: (pw.Context contex) {
+                  return pw.Image(
+                    image,
+                    fit: pw.BoxFit.cover,
+                  );
+                }));
+          }
+        }
         setState(() {
-          imageFile = croppedFile;
+          pdfPageList = pdfPageList;
         });
-        navigatorKey.currentState!.pushNamed(DetailsPage.routeName,
+
+        Io.Directory documentDirectory =
+            await getApplicationDocumentsDirectory();
+
+        String documentPath = documentDirectory.path;
+
+        Io.File file = Io.File("$documentPath/${args.data.docName}.pdf");
+
+        file.writeAsBytesSync(await pdf.save());
+
+        final String date = formatter.format(now);
+        DocumentDetails data = DocumentDetails(
+          image: file.readAsBytesSync(),
+          createDate: date,
+          docName: args.data.docName,
+          docType: 1,
+          isDone: true,
+          id: args.data.id,
+        );
+        bloc.updateTodo(data);
+        /*navigatorKey.currentState!.pushNamed(DetailsPage.routeName,
             arguments:
-                DetailsPageArguments(image: croppedFile, data: args.data));
+                DetailsPageArguments(image: croppedFile, data: args.data));*/
       }
-      print('_cropImageNew croppedFile $croppedFile');
     } catch (e) {
-      print('_cropImageNew $e');
+      return;
     }
   }
 }

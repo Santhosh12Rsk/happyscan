@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:edge_detection/edge_detection.dart';
 import 'package:flutter/material.dart';
@@ -265,7 +266,7 @@ class _ScannerPageState extends State<ScannerPage> {
                               final String date = formatter.format(now);
                               File image = File(_imagePath!);
 
-                              String? imgString;
+                              Uint8List? imgString;
                               if (isPdf == true) {
                                 try {
                                   var pdf = pw.Document();
@@ -291,12 +292,12 @@ class _ScannerPageState extends State<ScannerPage> {
 
                                   file.writeAsBytesSync(await pdf.save());
 
-                                  imgString = ImageConverter.base64String(
-                                      file.readAsBytesSync());
-                                } catch (e) {}
+                                  imgString = file.readAsBytesSync();
+                                } catch (e) {
+                                  return;
+                                }
                               } else {
-                                imgString = ImageConverter.base64String(
-                                    image.readAsBytesSync());
+                                imgString = image.readAsBytesSync();
                               }
                               DocumentDetails data = DocumentDetails(
                                 image: imgString,

@@ -32,6 +32,12 @@ class DocumentBloc {
         .add(await _todoRepository.getSearchAllTodos(query: query));
   }
 
+  getTodoById({String? query}) async {
+    //sink is a way of adding data reactively to the stream
+    //by registering a new event
+    return await _todoRepository.getTodoById(query: query);
+  }
+
   addTodo(DocumentDetails todo) async {
     await _todoRepository.insertTodo(todo);
     getTodos();

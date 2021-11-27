@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:happyscan/pages/pages.dart';
-import 'package:happyscan/utils/utils.dart';
 
-AuthService appAuth = AuthService();
-bool result = false;
+//AuthService appAuth = AuthService();
+//bool result = false;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  result = await appAuth.checkAlreadyLogin();
+  //result = await appAuth.checkAlreadyLogin();
   runApp(const MyApp());
 }
 
@@ -26,24 +25,17 @@ class MyApp extends StatelessWidget {
       ),
       navigatorKey: navigatorKey,
       routes: <String, WidgetBuilder>{
-        WelcomePage.routeName: (BuildContext _) => const WelcomePage(),
+        //WelcomePage.routeName: (BuildContext _) => const WelcomePage(),
         HomePage.routeName: (BuildContext _) => const HomePage(),
       },
-      onGenerateRoute: (settings) {
-        if (result) {
-          return MaterialPageRoute(
-            builder: (context) {
-              return const HomePage();
-            },
-          );
-        } else {
-          return MaterialPageRoute(
-            builder: (context) {
-              return const WelcomePage();
-            },
-          );
-        }
-      },
+      /* onGenerateRoute: (settings) {
+        return MaterialPageRoute(
+          builder: (context) {
+            return const HomePage();
+          },
+        );
+      },*/
+      home: const HomePage(),
     );
   }
 }
