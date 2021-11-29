@@ -125,7 +125,7 @@ class _SettingPageState extends State<SettingPage> {
       contentPadding:
           const EdgeInsets.only(left: 22, right: 22, top: 20, bottom: 5),
       content: const Text(
-          'Happy scan is a mobile application that works both in iOS and android which is used for image scanning. It enables the users to convert the scanned images to PDF and JPEG which can be saved and shared across other applications. The app was originally designed and developed by Apptomate.'),
+          'Happyscan is a simple and easy use application to scan the documents and photos. It enables the users to convert the scanned images to PDF and JPEG which can be saved and shared across applications. This application originally designed and developed by Apptomate.\nHappy Scanning :)'),
       actions: <Widget>[
         TextButton(
             onPressed: () async {

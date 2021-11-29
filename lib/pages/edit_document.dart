@@ -284,7 +284,7 @@ class _EditDocumentPageState extends State<EditDocumentPage> {
           ),
           TextButton(
             onPressed: () {
-              shareMyDoc(args.data);
+              shareMyDoc();
             },
             child: Column(
               children: [
@@ -488,17 +488,19 @@ class _EditDocumentPageState extends State<EditDocumentPage> {
     }
   }
 
-  void shareMyDoc(DocumentDetails docData) async {
+  void shareMyDoc() async {
     try {
       //Share.share('check out my website https://example.com');
-
-      Uint8List bytes = docData.image!;
+      var data = await editTodoBloc.getTodoById(query: args.data.id.toString());
+      Uint8List bytes = data[0].image!;
       String dir = (await getApplicationDocumentsDirectory()).path;
       String fullPath =
-          '$dir/${docData.docName}.${docData.docType == 1 ? 'pdf' : 'png'}';
+          '$dir/${data[0].docName}.${data[0].docType == 1 ? 'pdf' : 'jpg'}';
       Io.File file = Io.File(fullPath);
       await file.writeAsBytes(bytes);
-      Share.shareFiles([fullPath], text: 'Happy Scan Document');
+      Share.shareFiles(
+        [fullPath],
+      );
     } catch (e) {
       return null;
     }

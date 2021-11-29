@@ -1,5 +1,5 @@
-const String happyScanText = '- HappyScan -';
-const String happyText = 'Happy Scan';
+const String happyScanText = '- Happyscan -';
+const String happyText = 'Happyscan';
 const String scanDescText =
     'Photo Scanner is a powerful scanning app with many amazing features !';
 const String getStartedText = 'Get Started';
@@ -20,7 +20,7 @@ const String pdfText = 'Pdf';
 const String docTitleText = 'Document Title';
 const String cancelText = 'Cancel';
 
-const String aboutHappyScanText = 'About HappyScan';
+const String aboutHappyScanText = 'About Happyscan';
 const String helpText = 'Help';
 const String rateAppText = 'Rate app';
 const String shareThisAppText = 'Share this app';

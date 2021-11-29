@@ -235,7 +235,11 @@ class _HomePageState extends State<HomePage> {
         navigatorKey.currentState!.pushNamed(ScannerPage.routeName);
       },
       backgroundColor: accentColor,
-      child: Image.asset("assets/images/ic_scan.png"),
+      child: Image.asset(
+        "assets/images/ic_scan.png",
+        height: 25,
+        width: 25,
+      ),
     );
   }
 
@@ -289,9 +293,8 @@ class _HomePageState extends State<HomePage> {
   Widget scanImage() {
     return const Image(
       image: AssetImage('assets/images/scan.png'),
-      height: 200,
-      width: 200,
-      fit: BoxFit.cover,
+      height: 300,
+      //fit: BoxFit.fill,
     );
   }
 
@@ -493,15 +496,15 @@ class DocumentCardItem extends StatelessWidget {
 
   void shareMyDoc(DocumentDetails docData) async {
     try {
-      //Share.share('check out my website https://example.com');
-
       Uint8List bytes = docData.image!;
       String dir = (await getApplicationDocumentsDirectory()).path;
       String fullPath =
-          '$dir/${docData.docName}.${docData.docType == 1 ? 'pdf' : 'png'}';
+          '$dir/${docData.docName}.${docData.docType == 1 ? 'pdf' : 'jpg'}';
       File file = File(fullPath);
       await file.writeAsBytes(bytes);
-      Share.shareFiles([fullPath], text: 'Happy Scan Document');
+      Share.shareFiles(
+        [fullPath],
+      );
     } catch (e) {
       return null;
     }
