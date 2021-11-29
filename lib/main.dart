@@ -18,14 +18,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'HappyScan',
+      title: 'Happyscan',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
       navigatorKey: navigatorKey,
       routes: <String, WidgetBuilder>{
-        //WelcomePage.routeName: (BuildContext _) => const WelcomePage(),
         HomePage.routeName: (BuildContext _) => const HomePage(),
       },
       /* onGenerateRoute: (settings) {
