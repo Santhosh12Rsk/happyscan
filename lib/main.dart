@@ -26,6 +26,13 @@ class MyApp extends StatelessWidget {
       navigatorKey: navigatorKey,
       routes: <String, WidgetBuilder>{
         HomePage.routeName: (BuildContext _) => const HomePage(),
+        ScannerPage.routeName: (BuildContext _) => const ScannerPage(),
+        DetailsPage.routeName: (BuildContext _) => const DetailsPage(),
+        SettingPage.routeName: (BuildContext _) => const SettingPage(),
+        EditDocumentPage.routeName: (BuildContext _) =>
+            const EditDocumentPage(),
+        ViewDocumentPage.routeName: (BuildContext _) =>
+            const ViewDocumentPage(),
       },
       /* onGenerateRoute: (settings) {
         return MaterialPageRoute(
